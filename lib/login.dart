@@ -1,11 +1,45 @@
 import 'package:flutter/material.dart';
 import '/ScreenMenu.dart';
+import 'dart:convert';
+import 'package:sqflite/sqflite.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
 
   @override
   State<Login> createState() => _LoginState();
+}
+
+class Usuario {
+  int id;
+  String nombre;
+  String correo;
+  String password;
+
+  Usuario({
+    required this.id,
+    required this.nombre,
+    required this.correo,
+    required this.password,
+  });
+}
+
+Future<void> _createDatabase(Database db, int version) async {
+  // Crear tabla Usuario
+  await db.execute('''
+    CREATE TABLE Usuario (
+      id INTEGER PRIMARY KEY,
+      nombre TEXT,
+      correo TEXT,
+      password TEXT
+    )
+  ''');
+
+  // Insertar un usuario de ejemplo
+  await db.rawInsert('''
+    INSERT INTO Usuario (nombre, correo, password)
+    VALUES (?, ?, ?)
+  ''', ["Jose Isaias", "isaias.briano@gmail.com", "password123"]);
 }
 
 class _LoginState extends State<Login> {
@@ -65,11 +99,11 @@ class _LoginState extends State<Login> {
           style: TextStyle(
               color: myColor, fontSize: 32, fontWeight: FontWeight.w500),
         ),
-        _buildGreyText("Porfavor inicia sesión"),
+        _buildGreyText("Por favor inicia sesión"),
         const SizedBox(
           height: 60,
         ),
-        _buildGreyText("Direccion de correo electrónico"),
+        _buildGreyText("Dirección de correo electrónico"),
         _buildInputField(emailController),
         const SizedBox(height: 40),
         _buildGreyText("Contraseña"),
@@ -107,19 +141,70 @@ class _LoginState extends State<Login> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         TextButton(
-            onPressed: () {},
-            child: _buildGreyText("He olvidado mi contraseña"))
+          onPressed: () {},
+          child: _buildGreyText("He olvidado mi contraseña"),
+        )
       ],
     );
   }
 
   Widget _buildLoginButton() {
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         debugPrint("Email: ${emailController.text}");
         debugPrint("Password: ${passwordController.text}");
-        Navigator.push(
-            context, MaterialPageRoute(builder: (_) => ScreenMenu()));
+
+        if (passwordController.text.isEmpty || emailController.text.isEmpty) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Aviso"),
+                content:
+                    Text("El correo y la contraseña no pueden estar vacíos"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          // Realizar la consulta a la base de datos o comparación directa
+          bool loginSuccessful = await _authenticateUser(
+            emailController.text,
+            passwordController.text,
+          );
+
+          if (loginSuccessful) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ScreenMenu()),
+            );
+          } else {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("Aviso"),
+                  content: Text("Correo o contraseña incorrectos"),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("OK"),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        }
       },
       style: ElevatedButton.styleFrom(
         shape: const StadiumBorder(),
@@ -131,11 +216,15 @@ class _LoginState extends State<Login> {
     );
   }
 
+  Future<bool> _authenticateUser(String email, String password) async {
+    return false;
+  }
+
   Widget _buildOtherLogin() {
     return Center(
       child: Column(
         children: [
-          _buildGreyText("¿Eres nuevo? Registrate aqui"),
+          _buildGreyText("¿Eres nuevo? Regístrate aquí"),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
