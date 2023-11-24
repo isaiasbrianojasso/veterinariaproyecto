@@ -10,20 +10,6 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-class Usuario {
-  int id;
-  String nombre;
-  String correo;
-  String password;
-
-  Usuario({
-    required this.id,
-    required this.nombre,
-    required this.correo,
-    required this.password,
-  });
-}
-
 Future<void> _createDatabase(Database db, int version) async {
   // Crear tabla Usuario
   await db.execute('''
@@ -39,7 +25,7 @@ Future<void> _createDatabase(Database db, int version) async {
   await db.rawInsert('''
     INSERT INTO Usuario (nombre, correo, password)
     VALUES (?, ?, ?)
-  ''', ["Jose Isaias", "isaias.briano@gmail.com", "password123"]);
+  ''', ["Ejemplo Usuario", "ejemplo@email.com", "password123"]);
 }
 
 class _LoginState extends State<Login> {
@@ -79,9 +65,9 @@ class _LoginState extends State<Login> {
       child: Card(
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-        )),
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            )),
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: _buildForm(),
@@ -150,22 +136,21 @@ class _LoginState extends State<Login> {
 
   Widget _buildLoginButton() {
     return ElevatedButton(
-      onPressed: () async {
+      onPressed: () {
         debugPrint("Email: ${emailController.text}");
         debugPrint("Password: ${passwordController.text}");
-
-        if (passwordController.text.isEmpty || emailController.text.isEmpty) {
+        if (passwordController.text == '' || emailController.text == '') {
           showDialog(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
                 title: Text("Aviso"),
-                content:
-                    Text("El correo y la contraseña no pueden estar vacíos"),
+                content: Text(
+                    "No puede estar vacío el correo o la contraseña"),
                 actions: [
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      Navigator.of(context).pop(); // Cierra el cuadro de diálogo
                     },
                     child: Text("OK"),
                   ),
@@ -174,36 +159,8 @@ class _LoginState extends State<Login> {
             },
           );
         } else {
-          // Realizar la consulta a la base de datos o comparación directa
-          bool loginSuccessful = await _authenticateUser(
-            emailController.text,
-            passwordController.text,
-          );
-
-          if (loginSuccessful) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => ScreenMenu()),
-            );
-          } else {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text("Aviso"),
-                  content: Text("Correo o contraseña incorrectos"),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("OK"),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
+          Navigator.push(
+              context, MaterialPageRoute(builder: (_) => ScreenMenu()));
         }
       },
       style: ElevatedButton.styleFrom(
@@ -214,10 +171,6 @@ class _LoginState extends State<Login> {
       ),
       child: const Text("Login"),
     );
-  }
-
-  Future<bool> _authenticateUser(String email, String password) async {
-    return false;
   }
 
   Widget _buildOtherLogin() {
