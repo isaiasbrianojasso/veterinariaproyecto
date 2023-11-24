@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'ScreenMenu.dart';
+import '/ScreenMenu.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -9,33 +9,11 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  late Color myColor;
-  late Size mediaSize;
   TextEditingController emailController = TextEditingController();
+  late Size mediaSize;
+  late Color myColor;
   TextEditingController passwordController = TextEditingController();
   bool rememberUser = false;
-
-  @override
-  Widget build(BuildContext context) {
-    myColor = Theme.of(context).primaryColor;
-    mediaSize = MediaQuery.of(context).size;
-    return Container(
-      decoration: BoxDecoration(
-          color: myColor,
-          image: DecorationImage(
-              image: const AssetImage("assets/images/Background.jpg"),
-              fit: BoxFit.cover,
-              colorFilter: ColorFilter.mode(
-                  myColor.withOpacity(0.2), BlendMode.dstATop))),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Stack(children: [
-          Positioned(top: 80, child: _buildTop()),
-          Positioned(bottom: 0, child: _buildBottom()),
-        ]),
-      ),
-    );
-  }
 
   Widget _buildTop() {
     return SizedBox(
@@ -167,6 +145,28 @@ class _LoginState extends State<Login> {
             ],
           )
         ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    myColor = Theme.of(context).primaryColor;
+    mediaSize = MediaQuery.of(context).size;
+    return Container(
+      decoration: BoxDecoration(
+          color: myColor,
+          image: DecorationImage(
+              image: const AssetImage("assets/images/Background.jpg"),
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                  myColor.withOpacity(0.2), BlendMode.dstATop))),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(children: [
+          Positioned(top: 80, child: _buildTop()),
+          Positioned(bottom: 0, child: _buildBottom()),
+        ]),
       ),
     );
   }

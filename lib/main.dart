@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:veterinariaproyecto/login.dart';
+import 'login.dart';
+
+//import 'package:PROYECTO-1/login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Veterinaria',
       theme: ThemeData(primarySwatch: Colors.green),
-      home: Login(),
+      //  home: Login(),
       debugShowCheckedModeBanner: false,
     );
   }
