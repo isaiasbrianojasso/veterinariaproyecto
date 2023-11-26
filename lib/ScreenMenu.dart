@@ -5,6 +5,7 @@ import 'modelos/acerca.dart';
 import 'modelos/usuario.dart';
 import 'modelos/cita.dart';
 import 'modelos/Producto.dart';
+import 'modelos/mapa.dart';
 
 import 'citas.dart';
 
@@ -22,10 +23,10 @@ class ScreenMenuState extends State<ScreenMenu> {
     mediaSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Home"),
-        backgroundColor: Color.fromARGB(255, 42, 104, 44),
+        title: Text("Menu"),
+        backgroundColor: Color.fromARGB(255, 16, 199, 22),
       ),
-      backgroundColor: Colors.green,
+      backgroundColor: Colors.white,
       body: Container(
         child: GridView.builder(
           itemCount: Menu.length,
@@ -36,11 +37,35 @@ class ScreenMenuState extends State<ScreenMenu> {
             return Container(
               margin: EdgeInsets.all(15),
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 42, 104, 44),
+                color: Color.fromARGB(255, 55, 245, 61),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  if (Menu[index].nombre == 'Home') {
+                  } else if (Menu[index].nombre == 'Citas') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AppointmentScreen()),
+                    );
+                  } else if (Menu[index].nombre == 'Tienda') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => StoreScreen()),
+                    );
+                  } else if (Menu[index].nombre == 'Sucursales') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyApp()),
+                    );
+                  } else if (Menu[index].nombre == 'Nosotros') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => acerca()),
+                    );
+                  }
+                },
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -94,7 +119,7 @@ class ScreenMenuState extends State<ScreenMenu> {
               title: Text('Tienda'),
               onTap: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (_) => tienda()));
+                    context, MaterialPageRoute(builder: (_) => StoreScreen()));
               },
               //Navigator.pop(context); // Cierra el sidebar
             ),
