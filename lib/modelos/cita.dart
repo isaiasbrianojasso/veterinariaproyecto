@@ -11,7 +11,7 @@ class cita extends StatefulWidget {
 
 class _CitaListScreenState extends State<cita> {
   late Database _database;
-  late List<Map<String, dynamic>> _users;
+  late List<Map<String, dynamic>> _citas;
 
   @override
   void initState() {
@@ -24,58 +24,61 @@ class _CitaListScreenState extends State<cita> {
       path.join(await getDatabasesPath(), 'clinicavet.db'),
       version: 1,
     );
-    _loadUsers();
+    _loadCita();
   }
 
-  Future<void> _loadUsers() async {
-    final List<Map<String, dynamic>> users = await _database.query('Usuario');
+  Future<void> _loadCita() async {
+    final List<Map<String, dynamic>> citas = await _database.query('Cita');
     setState(() {
-      _users = users;
+      _citas = citas;
     });
   }
 
-  Future<void> _addUser(String nombre, String correo) async {
-    final newUser = {
-      'nombre': nombre,
-      'correo': correo,
+  Future<void> _addCita(String nombre_paciente, String nombre_cliente, String hora, String cita) async {
+    final newCita = {
+      'nombre_paciente': nombre_paciente,
+      'nombre_cliente': nombre_cliente,
+      'hora': hora,
+      'cita': cita,
     };
 
-    await _database.insert('Usuario', newUser);
-    _loadUsers();
+    await _database.insert('Cita', newCita);
+    _loadCita();
   }
 
-  Future<void> _editUser(int userId) async {
-    // Obtener el usuario actual
-    Map<String, dynamic> userToEdit = _users.firstWhere(
-          (user) => user['id'] == userId,
+  Future<void> _editCita(int citaId) async {
+    // Obtener la cita actual
+    Map<String, dynamic> citaToEdit = _citas.firstWhere(
+          (cita) => cita['id'] == citaId,
     );
-
-    String nombre = userToEdit['nombre'] ?? '';
-    String correo = userToEdit['correo'] ?? '';
+    String nombre_paciente = citaToEdit['nombre_paciente'] ?? '';
+    String nombre_cliente = citaToEdit['nombre_cliente'] ?? '';
+    String hora = citaToEdit['hora'] ?? '';
+    String cita = citaToEdit['cita'] ?? '';
 
     // Mostrar el modal para editar
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return _buildEditUserDialog(nombre, correo, userId);
+        return _buildEditCitaDialog(nombre_paciente, nombre_cliente, hora, cita, citaId);
       },
     );
   }
 
-  Future<void> _updateUser(int userId, String nombre, String correo) async {
+  Future<void> _updateCita(int citaId, String nombre_paciente, String nombre_cliente, String hora, String cita) async {
     await _database.update(
-      'Usuario',
-      {'nombre': nombre, 'correo': correo},
+      'Cita',
+      {'nombre_paciente': nombre_paciente, 'nombre_cliente': nombre_cliente, 'hora': hora, 'cita': cita},
       where: 'id = ?',
-      whereArgs: [userId],
+      whereArgs: [citaId],
     );
 
-    _loadUsers();
+    _loadCita();
   }
 
-  Future<void> _deleteUser(int userId) async {
-    await _database.delete('Usuario', where: 'id = ?', whereArgs: [userId]);
-    _loadUsers();
+  Future<void> _deleteCita(int citaId) async {
+    await _database.delete('Cita', where: 'id = ?', whereArgs: [citaId]);
+    _loadCita();
   }
 
   @override
@@ -86,32 +89,32 @@ class _CitaListScreenState extends State<cita> {
     mediaSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lista de Usuarios'),
+        title: Text('Lista de Citas'),
         backgroundColor: Color.fromARGB(255, 42, 104, 44),
       ),
       backgroundColor: Colors.green,
       body: Container(
-        color: Colors.white, // Establecer el color de fondo a blanco
+        color: Colors.white,
         child: ListView.builder(
-          itemCount: _users.length,
+          itemCount: _citas.length,
           itemBuilder: (context, index) {
-            final user = _users[index];
+            final cita = _citas[index];
             return ListTile(
-              title: Text(user['nombre']),
-              subtitle: Text(user['correo']),
+              title: Text(cita['nombre_paciente']),
+              subtitle: Text(cita['nombre_cliente']),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     icon: Icon(Icons.edit),
                     onPressed: () {
-                      _editUser(user['id']);
+                      _editCita(cita['id']);
                     },
                   ),
                   IconButton(
                     icon: Icon(Icons.delete),
                     onPressed: () {
-                      _deleteUser(user['id']);
+                      _deleteCita(cita['id']);
                     },
                   ),
                 ],
@@ -125,7 +128,7 @@ class _CitaListScreenState extends State<cita> {
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              return _buildAddUserDialog();
+              return _buildAddCitaDialog();
             },
           );
         },
@@ -134,27 +137,43 @@ class _CitaListScreenState extends State<cita> {
     );
   }
 
-  Widget _buildAddUserDialog() {
-    String nombre = '';
-    String correo = '';
+  Widget _buildAddCitaDialog() {
+    String nombre_paciente = '';
+    String nombre_cliente = '';
+    String hora = '';
+    String cita = '';
 
     return AlertDialog(
-      title: Text('Agregar Usuario'),
+      title: Text('Agregar Cita'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
             onChanged: (value) {
-              nombre = value;
+              nombre_paciente = value;
             },
-            decoration: InputDecoration(labelText: 'Nombre'),
+            decoration: InputDecoration(labelText: 'Nombre del paciente'),
           ),
           SizedBox(height: 8),
           TextField(
             onChanged: (value) {
-              correo = value;
+              nombre_cliente = value;
             },
-            decoration: InputDecoration(labelText: 'Correo'),
+            decoration: InputDecoration(labelText: 'Nombre del cliente'),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            onChanged: (value) {
+              hora = value;
+            },
+            decoration: InputDecoration(labelText: 'Hora'),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            onChanged: (value) {
+              cita = value;
+            },
+            decoration: InputDecoration(labelText: 'Cita'),
           ),
         ],
       ),
@@ -167,7 +186,7 @@ class _CitaListScreenState extends State<cita> {
         ),
         TextButton(
           onPressed: () {
-            _addUser(nombre, correo);
+            _addCita(nombre_paciente, nombre_cliente, hora, cita);
             Navigator.pop(context);
           },
           child: Text('Agregar'),
@@ -176,29 +195,47 @@ class _CitaListScreenState extends State<cita> {
     );
   }
 
-  Widget _buildEditUserDialog(String nombre, String correo, int userId) {
-    String editedNombre = nombre;
-    String editedCorreo = correo;
+  Widget _buildEditCitaDialog(String nombre_paciente, String nombre_cliente, String hora, String cita, int citaId) {
+    String editedNombrePaciente = nombre_paciente;
+    String editedNombreCliente = nombre_cliente;
+    String editedHora = hora;
+    String editedCita = cita;
 
     return AlertDialog(
-      title: Text('Editar Usuario'),
+      title: Text('Editar Cita'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
             onChanged: (value) {
-              editedNombre = value;
+              editedNombrePaciente = value;
             },
-            controller: TextEditingController(text: nombre),
-            decoration: InputDecoration(labelText: 'Nombre'),
+            controller: TextEditingController(text: nombre_paciente),
+            decoration: InputDecoration(labelText: 'Nombre del paciente'),
           ),
           SizedBox(height: 8),
           TextField(
             onChanged: (value) {
-              editedCorreo = value;
+              editedNombreCliente = value;
             },
-            controller: TextEditingController(text: correo),
-            decoration: InputDecoration(labelText: 'Correo'),
+            controller: TextEditingController(text: nombre_cliente),
+            decoration: InputDecoration(labelText: 'Nombre del cliente'),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            onChanged: (value) {
+              editedHora = value;
+            },
+            controller: TextEditingController(text: hora),
+            decoration: InputDecoration(labelText: 'Hora'),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            onChanged: (value) {
+              editedCita = value;
+            },
+            controller: TextEditingController(text: cita),
+            decoration: InputDecoration(labelText: 'Cita'),
           ),
         ],
       ),
@@ -211,7 +248,7 @@ class _CitaListScreenState extends State<cita> {
         ),
         TextButton(
           onPressed: () {
-            _updateUser(userId, editedNombre, editedCorreo);
+            _updateCita(citaId, editedNombrePaciente, editedNombreCliente, editedHora, editedCita);
             Navigator.pop(context);
           },
           child: Text('Guardar'),
