@@ -1,44 +1,58 @@
 import 'package:flutter/material.dart';
 import '/ScreenMenu.dart';
-import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart' as path;
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  const Login({Key? key}) : super(key: key);
 
   @override
   State<Login> createState() => _LoginState();
 }
 
-Future<void> _createDatabase(Database db, int version) async {
-  // Crear tabla Usuario
-  await db.execute('''
-    CREATE TABLE Usuario (
-      id INTEGER PRIMARY KEY,
-      nombre TEXT,
-      correo TEXT,
-      password TEXT
-    )
-  ''');
-
-  // Insertar un usuario de ejemplo
-  await db.rawInsert('''
-    INSERT INTO Usuario (nombre, correo, password)
-    VALUES (?, ?, ?)
-  ''', ["Ejemplo Usuario", "ejemplo@email.com", "password123"]);
-}
-
 class _LoginState extends State<Login> {
-  TextEditingController emailController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   late Size mediaSize;
   late Color myColor;
-  TextEditingController passwordController = TextEditingController();
   bool rememberUser = false;
+
+  late Database _database;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDatabase();
+  }
+
+  Future<void> _initDatabase() async {
+    _database = await openDatabase(
+      path.join(await getDatabasesPath(), 'clinica_vet.db'),
+      version: 1,
+      onCreate: _createDatabase,
+    );
+  }
+
+  Future<void> _createDatabase(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS Usuario (
+        id INTEGER PRIMARY KEY,
+        nombre TEXT,
+        correo TEXT,
+        password TEXT
+      )
+    ''');
+
+    await db.rawInsert('''
+      INSERT INTO Usuario (nombre, correo, password)
+      VALUES (?, ?, ?)
+    ''', ["Ejemplo Usuario", "ejemplo@email.com", "password123"]);
+  }
 
   Widget _buildTop() {
     return SizedBox(
       width: mediaSize.width,
-      child: const Column(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
@@ -49,11 +63,12 @@ class _LoginState extends State<Login> {
           Text(
             "Clinica Vet",
             style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 40,
-                letterSpacing: 2),
-          )
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 40,
+              letterSpacing: 2,
+            ),
+          ),
         ],
       ),
     );
@@ -64,10 +79,11 @@ class _LoginState extends State<Login> {
       width: mediaSize.width,
       child: Card(
         shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30),
-              topRight: Radius.circular(30),
-            )),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: _buildForm(),
@@ -83,7 +99,10 @@ class _LoginState extends State<Login> {
         Text(
           "¡Bienvenido!",
           style: TextStyle(
-              color: myColor, fontSize: 32, fontWeight: FontWeight.w500),
+            color: myColor,
+            fontSize: 32,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         _buildGreyText("Por favor inicia sesión"),
         const SizedBox(
@@ -107,12 +126,12 @@ class _LoginState extends State<Login> {
   Widget _buildGreyText(String text) {
     return Text(
       text,
-      style: const TextStyle(color: Colors.grey),
+      style: TextStyle(color: Colors.grey),
     );
   }
 
   Widget _buildInputField(TextEditingController controller,
-      {isPassword = false}) {
+      {bool isPassword = false}) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -129,28 +148,27 @@ class _LoginState extends State<Login> {
         TextButton(
           onPressed: () {},
           child: _buildGreyText("He olvidado mi contraseña"),
-        )
+        ),
       ],
     );
   }
 
   Widget _buildLoginButton() {
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         debugPrint("Email: ${emailController.text}");
         debugPrint("Password: ${passwordController.text}");
-        if (passwordController.text == '' || emailController.text == '') {
+        if (passwordController.text.isEmpty || emailController.text.isEmpty) {
           showDialog(
             context: context,
-            builder: (BuildContext context) {
+            builder: (BuildContext dialogContext) {
               return AlertDialog(
                 title: Text("Aviso"),
-                content: Text(
-                    "No puede estar vacío el correo o la contraseña"),
+                content: Text("No puede estar vacío el correo o la contraseña"),
                 actions: [
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop(); // Cierra el cuadro de diálogo
+                      Navigator.of(dialogContext).pop();
                     },
                     child: Text("OK"),
                   ),
@@ -159,8 +177,35 @@ class _LoginState extends State<Login> {
             },
           );
         } else {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (_) => ScreenMenu()));
+          bool isAuthenticated = await _authenticateUser(
+            emailController.text,
+            passwordController.text,
+          );
+
+          if (isAuthenticated) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ScreenMenu()),
+            );
+          } else {
+            showDialog(
+              context: context,
+              builder: (BuildContext dialogContext) {
+                return AlertDialog(
+                  title: Text("Error"),
+                  content: Text("Usuario o contraseña incorrectos"),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop();
+                      },
+                      child: Text("OK"),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         }
       },
       style: ElevatedButton.styleFrom(
@@ -173,6 +218,16 @@ class _LoginState extends State<Login> {
     );
   }
 
+  Future<bool> _authenticateUser(String email, String password) async {
+    List<Map<String, dynamic>> result = await _database.query(
+      'Usuario',
+      where: 'correo = ? AND password = ?',
+      whereArgs: [email, password],
+    );
+
+    return result.isNotEmpty;
+  }
+
   Widget _buildOtherLogin() {
     return Center(
       child: Column(
@@ -183,9 +238,9 @@ class _LoginState extends State<Login> {
             children: [
               Tab(
                 icon: Image.asset("assets/images/log.png"),
-              )
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -197,18 +252,24 @@ class _LoginState extends State<Login> {
     mediaSize = MediaQuery.of(context).size;
     return Container(
       decoration: BoxDecoration(
-          color: myColor,
-          image: DecorationImage(
-              image: const AssetImage("assets/images/Background.jpg"),
-              fit: BoxFit.cover,
-              colorFilter: ColorFilter.mode(
-                  myColor.withOpacity(0.2), BlendMode.dstATop))),
+        color: myColor,
+        image: DecorationImage(
+          image: const AssetImage("assets/images/Background.jpg"),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            myColor.withOpacity(0.2),
+            BlendMode.dstATop,
+          ),
+        ),
+      ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Stack(children: [
-          Positioned(top: 80, child: _buildTop()),
-          Positioned(bottom: 0, child: _buildBottom()),
-        ]),
+        body: Stack(
+          children: [
+            Positioned(top: 80, child: _buildTop()),
+            Positioned(bottom: 0, child: _buildBottom()),
+          ],
+        ),
       ),
     );
   }
