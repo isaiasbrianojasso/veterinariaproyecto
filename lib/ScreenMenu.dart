@@ -110,11 +110,28 @@ class ScreenMenuState extends State<ScreenMenu> {
               },
             ),
             ListTile(
+              title: Text('-------------Admin Area------------------'),
+            ),
+            ListTile(
               title: Text('Usuarios'),
               onTap: () {
                 Navigator.push(
                     context, MaterialPageRoute(builder: (_) => usuario()));
-                },
+              },
+            ),
+            ListTile(
+              title: Text('Citas'),
+              onTap: () {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => usuario()));
+              },
+            ),
+            ListTile(
+              title: Text('Productos'),
+              onTap: () {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => usuario()));
+              },
             ),
             // Agrega más opciones según tus necesidades
           ],

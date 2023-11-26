@@ -43,7 +43,15 @@ class _LoginState extends State<Login> {
         password TEXT
       )
     ''');
-
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS Producto (
+        id INTEGER PRIMARY KEY,
+        nombre TEXT,
+        precio TEXT,
+        CANTIDAD INT,
+        total NUMBER
+      )
+    ''');
     await db.rawInsert('''
       INSERT INTO Usuario (nombre, correo, password)
       VALUES (?, ?, ?)

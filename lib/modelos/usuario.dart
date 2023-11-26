@@ -35,6 +35,7 @@ class _UsuarioListScreenState extends State<usuario> {
   }
 
   Future<void> _addUser() async {
+    print("Agregar usuario");
     // Implementa la lógica para agregar un nuevo usuario aquí
     // Puedes mostrar un diálogo o navegar a una pantalla de formulario
   }
@@ -59,7 +60,6 @@ class _UsuarioListScreenState extends State<usuario> {
       appBar: AppBar(
         title: Text('Lista de Usuarios'),
         backgroundColor: Color.fromARGB(255, 42, 104, 44),
-
       ),
       backgroundColor: Colors.green,
       body: Container(
