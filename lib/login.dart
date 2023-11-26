@@ -32,6 +32,12 @@ class _LoginState extends State<Login> {
       version: 1,
       onCreate: _createDatabase,
     );
+    // Create the Producto table
+    await _createProducto(_database, 1);
+    // Uncomment the line below if you want to delete the database and recreate it on every app start
+   // await deleteDatabase(path.join(await getDatabasesPath(), 'clinicavet.db'));
+
+   // await deleteDatabase(path.join(await getDatabasesPath(), 'clinicavet.db'));
   }
 
   Future<void> _createDatabase(Database db, int version) async {
@@ -43,21 +49,33 @@ class _LoginState extends State<Login> {
         password TEXT
       )
     ''');
+
+    await db.rawInsert('''
+      INSERT INTO Usuario (nombre, correo, password)
+      VALUES (?, ?, ?)
+    ''', ["Ejemplo Usuario", "ejemplo@email.com", "password123"]
+
+    );
+  }
+
+  Future<void> _createProducto(Database db, int version) async {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS Producto (
         id INTEGER PRIMARY KEY,
         nombre TEXT,
-        precio TEXT,
-        CANTIDAD INT,
-        total NUMBER
+        descripcion TEXT,
+        cantidad INT,
+        precio INT
       )
     ''');
-    await db.rawInsert('''
-      INSERT INTO Usuario (nombre, correo, password)
-      VALUES (?, ?, ?)
-    ''', ["Ejemplo Usuario", "ejemplo@email.com", "password123"]);
-  }
 
+    await db.rawInsert('''
+      INSERT INTO Producto (nombre, descripcion, cantidad,precio)
+      VALUES (?, ?, ?, ?)
+    ''', ["Croquetas Doggy","Las mejores", 40, 5]
+
+    );
+  }
   Widget _buildTop() {
     return SizedBox(
       width: mediaSize.width,

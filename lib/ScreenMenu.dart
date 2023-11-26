@@ -3,6 +3,8 @@ import 'modelos/categoria.dart';
 import 'modelos/tienda.dart';
 import 'modelos/acerca.dart';
 import 'modelos/usuario.dart';
+import 'modelos/cita.dart';
+import 'modelos/Producto.dart';
 
 import 'citas.dart';
 
@@ -123,14 +125,14 @@ class ScreenMenuState extends State<ScreenMenu> {
               title: Text('Citas'),
               onTap: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (_) => usuario()));
+                    context, MaterialPageRoute(builder: (_) => cita()));
               },
             ),
             ListTile(
               title: Text('Productos'),
               onTap: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (_) => usuario()));
+                    context, MaterialPageRoute(builder: (_) => Producto()));
               },
             ),
             // Agrega más opciones según tus necesidades
