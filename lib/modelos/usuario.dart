@@ -34,15 +34,43 @@ class _UsuarioListScreenState extends State<usuario> {
     });
   }
 
-  Future<void> _addUser() async {
-    print("Agregar usuario");
-    // Implementa la lógica para agregar un nuevo usuario aquí
-    // Puedes mostrar un diálogo o navegar a una pantalla de formulario
+  Future<void> _addUser(String nombre, String correo) async {
+    final newUser = {
+      'nombre': nombre,
+      'correo': correo,
+    };
+
+    await _database.insert('Usuario', newUser);
+    _loadUsers();
   }
 
   Future<void> _editUser(int userId) async {
-    // Implementa la lógica para editar el usuario con el ID proporcionado
-    // Puedes mostrar un diálogo o navegar a una pantalla de formulario
+    // Obtener el usuario actual
+    Map<String, dynamic> userToEdit = _users.firstWhere(
+          (user) => user['id'] == userId,
+    );
+
+    String nombre = userToEdit['nombre'] ?? '';
+    String correo = userToEdit['correo'] ?? '';
+
+    // Mostrar el modal para editar
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return _buildEditUserDialog(nombre, correo, userId);
+      },
+    );
+  }
+
+  Future<void> _updateUser(int userId, String nombre, String correo) async {
+    await _database.update(
+      'Usuario',
+      {'nombre': nombre, 'correo': correo},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+
+    _loadUsers();
   }
 
   Future<void> _deleteUser(int userId) async {
@@ -93,9 +121,102 @@ class _UsuarioListScreenState extends State<usuario> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addUser,
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return _buildAddUserDialog();
+            },
+          );
+        },
         child: Icon(Icons.add),
       ),
+    );
+  }
+
+  Widget _buildAddUserDialog() {
+    String nombre = '';
+    String correo = '';
+
+    return AlertDialog(
+      title: Text('Agregar Usuario'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            onChanged: (value) {
+              nombre = value;
+            },
+            decoration: InputDecoration(labelText: 'Nombre'),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            onChanged: (value) {
+              correo = value;
+            },
+            decoration: InputDecoration(labelText: 'Correo'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () {
+            _addUser(nombre, correo);
+            Navigator.pop(context);
+          },
+          child: Text('Agregar'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEditUserDialog(String nombre, String correo, int userId) {
+    String editedNombre = nombre;
+    String editedCorreo = correo;
+
+    return AlertDialog(
+      title: Text('Editar Usuario'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            onChanged: (value) {
+              editedNombre = value;
+            },
+            controller: TextEditingController(text: nombre),
+            decoration: InputDecoration(labelText: 'Nombre'),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            onChanged: (value) {
+              editedCorreo = value;
+            },
+            controller: TextEditingController(text: correo),
+            decoration: InputDecoration(labelText: 'Correo'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () {
+            _updateUser(userId, editedNombre, editedCorreo);
+            Navigator.pop(context);
+          },
+          child: Text('Guardar'),
+        ),
+      ],
     );
   }
 }
