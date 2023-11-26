@@ -35,9 +35,9 @@ class _LoginState extends State<Login> {
     // Create the Producto table
     await _createProducto(_database, 1);
     // Uncomment the line below if you want to delete the database and recreate it on every app start
-   // await deleteDatabase(path.join(await getDatabasesPath(), 'clinicavet.db'));
+    // await deleteDatabase(path.join(await getDatabasesPath(), 'clinicavet.db'));
 
-   // await deleteDatabase(path.join(await getDatabasesPath(), 'clinicavet.db'));
+    // await deleteDatabase(path.join(await getDatabasesPath(), 'clinicavet.db'));
   }
 
   Future<void> _createDatabase(Database db, int version) async {
@@ -53,9 +53,7 @@ class _LoginState extends State<Login> {
     await db.rawInsert('''
       INSERT INTO Usuario (nombre, correo, password)
       VALUES (?, ?, ?)
-    ''', ["Ejemplo Usuario", "ejemplo@email.com", "password123"]
-
-    );
+    ''', ["Ejemplo Usuario", "ejemplo@email.com", "password123"]);
   }
 
   Future<void> _createProducto(Database db, int version) async {
@@ -72,23 +70,22 @@ class _LoginState extends State<Login> {
     await db.rawInsert('''
       INSERT INTO Producto (nombre, descripcion, cantidad,precio)
       VALUES (?, ?, ?, ?)
-    ''', ["Croquetas Doggy","Las mejores", 40, 5]
-
-    );
+    ''', ["Croquetas Doggy", "Las mejores", 40, 5]);
   }
+
   Widget _buildTop() {
     return SizedBox(
       width: mediaSize.width,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.pets,
-            size: 100,
-            color: Colors.white,
+          Image.asset(
+            "assets/images/log.png",
+            width: 100,
+            height: 100,
           ),
           Text(
-            "Clinica Vet",
+            "Nina's Vet",
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -141,7 +138,7 @@ class _LoginState extends State<Login> {
         _buildGreyText("Contraseña"),
         _buildInputField(passwordController, isPassword: true),
         const SizedBox(height: 20),
-        _buildRememberForgot(),
+        //_buildRememberForgot(),
         const SizedBox(height: 20),
         _buildLoginButton(),
         const SizedBox(height: 20),
@@ -168,7 +165,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _buildRememberForgot() {
+  /*Widget _buildRememberForgot() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -178,7 +175,7 @@ class _LoginState extends State<Login> {
         ),
       ],
     );
-  }
+  }*/
 
   Widget _buildLoginButton() {
     return ElevatedButton(
@@ -260,16 +257,87 @@ class _LoginState extends State<Login> {
       child: Column(
         children: [
           _buildGreyText("¿Eres nuevo? Regístrate aquí"),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Tab(
-                icon: Image.asset("assets/images/log.png"),
+          InkWell(
+            onTap: () {
+              _showRegisterDialog(context);
+            },
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey.withOpacity(0.2),
               ),
-            ],
+              child: Icon(
+                Icons.pets,
+                size: 50,
+                color: Colors.black,
+              ),
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  void _showRegisterDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Registro de Usuario'),
+          content: _buildRegisterForm(),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                // lógica de registro
+                Navigator.of(context).pop();
+              },
+              child: Text('Registrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildRegisterForm() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextFormField(
+          decoration: InputDecoration(labelText: 'Nombre'),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor, ingrese un nombre';
+            }
+            return null;
+          },
+        ),
+        TextFormField(
+          decoration: InputDecoration(labelText: 'Correo'),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor, ingrese un correo';
+            }
+            return null;
+          },
+        ),
+        TextFormField(
+          decoration: InputDecoration(labelText: 'Contraseña'),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor, ingrese una contraseña';
+            }
+            return null;
+          },
+        ),
+      ],
     );
   }
 

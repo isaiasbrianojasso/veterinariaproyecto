@@ -14,11 +14,11 @@ class acerca extends StatelessWidget {
             SizedBox(height: 20),
             CircleAvatar(
               radius: 80,
-              backgroundImage: AssetImage('assets/veterinary_image.jpg'),
+              backgroundImage: AssetImage('assets/images/log.png'),
             ),
             SizedBox(height: 20),
             Text(
-              'Veterinaria XYZ',
+              'Nina´s Vet',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -43,9 +43,9 @@ class acerca extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                'Bienvenido a Veterinaria XYZ. Brindamos atención médica integral para tus mascotas. Nuestro equipo de veterinarios altamente calificados está aquí para ayudarte con las necesidades de salud y bienestar de tus animales.',
-                style: TextStyle(fontSize: 16),
-                textAlign: TextAlign.justify,
+                'Bienvenido a Nina´s Vet. Brindamos atención médica integral para tus mascotas. Nuestro equipo de veterinarios altamente calificados está aquí para ayudarte con las necesidades de salud y bienestar de tus animales.',
+                style: TextStyle(fontSize: 23),
+                textAlign: TextAlign.center,
               ),
             ),
             SizedBox(height: 20),
