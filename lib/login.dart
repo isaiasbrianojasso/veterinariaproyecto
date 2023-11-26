@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '/ScreenMenu.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as path;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -27,7 +28,7 @@ class _LoginState extends State<Login> {
 
   Future<void> _initDatabase() async {
     _database = await openDatabase(
-      path.join(await getDatabasesPath(), 'clinica_vet.db'),
+      path.join(await getDatabasesPath(), 'clinicavet.db'),
       version: 1,
       onCreate: _createDatabase,
     );

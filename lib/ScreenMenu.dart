@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'modelos/categoria.dart';
 import 'modelos/tienda.dart';
 import 'modelos/acerca.dart';
+import 'modelos/usuario.dart';
+
 import 'citas.dart';
 
 class ScreenMenu extends StatefulWidget {
@@ -107,7 +109,13 @@ class ScreenMenuState extends State<ScreenMenu> {
                     context, MaterialPageRoute(builder: (_) => acerca()));
               },
             ),
-
+            ListTile(
+              title: Text('Usuarios'),
+              onTap: () {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => usuario()));
+                },
+            ),
             // Agrega más opciones según tus necesidades
           ],
         ),
