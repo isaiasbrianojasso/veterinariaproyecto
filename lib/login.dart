@@ -34,10 +34,10 @@ class _LoginState extends State<Login> {
     );
     // Create the Producto table
     await _createProducto(_database, 1);
-    // Uncomment the line below if you want to delete the database and recreate it on every app start
-   // await deleteDatabase(path.join(await getDatabasesPath(), 'clinicavet.db'));
+    await _createCita(_database, 1);
 
-   // await deleteDatabase(path.join(await getDatabasesPath(), 'clinicavet.db'));
+    // Uncomment the line below if you want to delete the database and recreate it on every app start
+  // await deleteDatabase(path.join(await getDatabasesPath(), 'clinicavet.db'));
   }
 
   Future<void> _createDatabase(Database db, int version) async {
@@ -76,10 +76,31 @@ class _LoginState extends State<Login> {
 
     );
   }
+
+
+  Future<void> _createCita(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS Cita (
+        id INTEGER PRIMARY KEY,
+        nombre_paciente TEXT,
+        nombre_cliente TEXT,
+        padecimiento TEXT,
+        hora TEXT,
+        cita TEXT
+      )
+    ''');
+
+    await db.rawInsert('''
+      INSERT INTO Cita (nombre_paciente, nombre_cliente, padecimiento,hora,cita)
+      VALUES (?, ?, ?, ?, ?)
+    ''', ["Pepe Luis","Hamburgueso", "sobrepeso", "10:00am","15 enero 2023"]
+
+    );
+  }
   Widget _buildTop() {
     return SizedBox(
       width: mediaSize.width,
-      child: Column(
+      child: const Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
