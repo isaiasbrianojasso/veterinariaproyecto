@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart' as path;
 
 class AppointmentScreen extends StatefulWidget {
   @override
@@ -6,8 +8,49 @@ class AppointmentScreen extends StatefulWidget {
 }
 
 class _AppointmentScreenState extends State<AppointmentScreen> {
+  late Database _database;
+  late List<Map<String, dynamic>> _citas;
+
   DateTime? selectedDate;
-  TimeOfDay? selectedTime; //
+  TimeOfDay? selectedTime;
+  String nombre_paciente = '';
+  String nombre_cliente = '';
+  String cita = '';
+  String hora = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _initDatabase();
+  }
+
+  Future<void> _initDatabase() async {
+    _database = await openDatabase(
+      path.join(await getDatabasesPath(), 'clinicavet.db'),
+      version: 1,
+    );
+    _loadCita();
+  }
+
+  Future<void> _loadCita() async {
+    final List<Map<String, dynamic>> citas = await _database.query('Cita');
+    setState(() {
+      _citas = citas;
+    });
+  }
+
+  Future<void> _addCita(
+      String nombrePaciente, String nombreCliente, String hora, String cita) async {
+    final newCita = {
+      'nombre_paciente': nombrePaciente,
+      'nombre_cliente': nombreCliente,
+      'hora': hora,
+      'cita': cita,
+    };
+
+    await _database.insert('Cita', newCita);
+    _loadCita();
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -20,6 +63,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
+        cita = picked.toString();
       });
     }
   }
@@ -33,6 +77,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     if (picked != null && picked != selectedTime) {
       setState(() {
         selectedTime = picked;
+        hora = picked.format(context);
       });
     }
   }
@@ -92,7 +137,10 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                //Logica para registrar fecha en base de datos
+                _addCita(nombre_paciente, nombre_cliente, hora, cita);
+                Navigator.pop(context);
+
+                // Lógica para registrar fecha en base de datos
               },
               style: ElevatedButton.styleFrom(
                 primary: Color.fromARGB(255, 8, 87, 11),

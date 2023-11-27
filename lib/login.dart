@@ -37,7 +37,7 @@ class _LoginState extends State<Login> {
     await _createCita(_database, 1);
 
     // Uncomment the line below if you want to delete the database and recreate it on every app start
-  // await deleteDatabase(path.join(await getDatabasesPath(), 'clinicavet.db'));
+    //await deleteDatabase(path.join(await getDatabasesPath(), 'clinicavet.db'));
   }
 
   Future<void> _createDatabase(Database db, int version) async {
